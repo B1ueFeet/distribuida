@@ -1,0 +1,109 @@
+#docker compose -f docker-compose-spring-metrics-gateway.yml up -d
+
+version: '3.3'
+services:
+  dbserver:
+    image: postgres:17.2-alpine3.21
+    environment:
+      POSTGRES_PASSWORD: postgres
+      POSTGRES_USER: postgres
+      POSTGRES_DB: distribuida
+      PGDATA: /var/lib/postgresql/data/pgdata
+    volumes:
+      - "c:/db-distribuida:/var/lib/postgresql/data"
+    ports:
+      - "54321:5432"
+    expose:
+      - 5432
+  consul:
+    image: consul:1.15.4
+    command: |
+      agent -dev
+      -ui
+      -bind 0.0.0.0
+      -client 0.0.0.0
+    ports:
+      - "8500:8500"
+    expose:
+      - 8500
+  proxy:
+    image: traefik:v3.3.1
+    command: |
+      --api.insecure=true
+      --providers.consulCatalog
+      --providers.consulCatalog.exposedByDefault=false
+      --providers.consulCatalog.refreshInterval=5s
+      --providers.consulCatalog.endpoint.address=consul:8500
+      --providers.docker
+      --providers.docker.exposedByDefault=false
+      --entryPoints.metrics.address=":8082"
+      --entryPoints.http.address=":80"
+      --metrics.prometheus.entryPoint=metrics
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+
+    ports:
+      - "8080:8080"
+      - "8082:8082"
+      - "80:80"
+    expose:
+      - 80
+    depends_on:
+      - consul
+  prometheus:
+    image: prom/prometheus:latest
+    volumes:
+      - ./configs:/etc/prometheus
+    ports:
+      - "9090:9090"
+    expose:
+      - 9090
+  grafana:
+    image: grafana/grafana-oss
+    ports:
+      - "3000:3000"
+    expose:
+      - 3000
+  authors:
+    image: aaguamaninga/app-authors-spring:latest
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.app-authors.rule=PathPrefix(`/app-authors`)"
+      - "traefik.http.routers.app-authors.middlewares=mauthors"
+      - "traefik.http.middlewares.mauthors.stripPrefix.prefixes=/app-authors"
+    environment:
+      SPRING_DATASOURCE_USERNAME: postgres
+      SPRING_DATASOURCE_PASSWORD: postgres
+      SPRING_DATASOURCE_JDBC_URL: jdbc:postgresql://dbserver:5432/distribuida
+      SPRING_HTTP_PORT: 8080
+      CONSUL_HOST: consul
+      CONSUL_PORT: 8500
+    expose:
+      - 8080
+    depends_on:
+      - dbserver
+      - consul
+    deploy:
+      replicas: 3
+  books:
+    image: aaguamaninga/app-books-spring:latest
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.app-books.rule=PathPrefix(`/app-books`)"
+      - "traefik.http.routers.app-books.middlewares=mbooks"
+      - "traefik.http.middlewares.mbooks.stripPrefix.prefixes=/app-books"
+    environment:
+      SPRING_DATASOURCE_USERNAME: postgres
+      SPRING_DATASOURCE_PASSWORD: postgres
+      SPRING_DATASOURCE_JDBC_URL: jdbc:postgresql://dbserver:5432/distribuida
+      SPRING_HTTP_PORT: 8080
+      SPRING_CLOUD_CONSUL_HOST: consul
+      SPRING_CLOUD_CONSUL_PORT: 8500
+    expose:
+      - 8080
+    depends_on:
+      - dbserver
+      - consul
+    deploy:
+      replicas: 1
+

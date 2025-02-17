@@ -1,0 +1,111 @@
+#docker compose -f docker-compose-spring-tracing-gateway.yml up -d
+
+version: '3.3'
+services:
+  dbserver:
+    image: postgres:17.2-alpine3.21
+    environment:
+      POSTGRES_PASSWORD: postgres
+      POSTGRES_USER: postgres
+      POSTGRES_DB: distribuida
+      PGDATA: /var/lib/postgresql/data/pgdata
+    volumes:
+      - "c:/db-distribuida:/var/lib/postgresql/data"
+    ports:
+      - "54321:5432"
+    expose:
+      - 5432
+  consul:
+    image: consul:1.15.4
+    command: |
+      agent -dev
+      -ui
+      -bind 0.0.0.0
+      -client 0.0.0.0
+    ports:
+      - "8500:8500"
+    expose:
+      - 8500
+  proxy:
+    image: traefik:v3.3.1
+    command: |
+      --api.insecure=true
+      --providers.consulCatalog
+      --providers.consulCatalog.exposedByDefault=false
+      --providers.consulCatalog.refreshInterval=5s
+      --providers.consulCatalog.endpoint.address=consul:8500
+      --providers.docker
+      --providers.docker.exposedByDefault=false
+      --tracing=true
+      --tracing.addinternals=false
+      --tracing.otlp=true
+      --tracing.otlp.http=true
+      --tracing.otlp.http.endpoint=http://jaeger:4318
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+
+    ports:
+      - "8080:8080"
+      - "8082:8082"
+      - "80:80"
+    expose:
+      - 80
+    depends_on:
+      - consul
+  jaeger:
+    image: jaegertracing/jaeger:2.2.0
+    ports:
+      - "16686:16686" #UI
+      - "4317:4317"   #gRTC
+      - "4318:4318"   #HTTP
+    expose:
+      - 16686
+      - 4317
+      - 4318
+    depends_on:
+      - proxy
+  authors:
+    image: aaguamaninga/app-authors-spring:latest
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.rapp-authors.rule=PathPrefix(`/app-authors-spring`)"
+      - "traefik.http.routers.rapp-authors.middlewares=mauthors"
+      - "traefik.http.middlewares.mauthors.stripPrefix.prefixes=/app-authors-spring"
+    environment:
+      SPRING_DATASOURCE_USERNAME: postgres
+      SPRING_DATASOURCE_PASSWORD: postgres
+      SPRING_DATASOURCE_JDBC_URL: jdbc:postgresql://dbserver:5432/distribuida
+      SERVER_PORT: 8080
+      CONSUL_HOST: consul
+      CONSUL_PORT: 8500
+      SPRING_OTEL_EXPORTER_OTLP_ENDPOINT: http://jaeger:4317
+    expose:
+      - 8080
+    depends_on:
+      - dbserver
+      - consul
+    deploy:
+      replicas: 1
+  books:
+    image: aaguamaninga/app-books-spring:latest
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.rapp-books.rule=PathPrefix(`/app-books-spring`)"
+      - "traefik.http.routers.rapp-books.middlewares=mbooks"
+      - "traefik.http.middlewares.mbooks.stripPrefix.prefixes=/app-books-spring"
+    environment:
+      SPRING_DATASOURCE_USERNAME: postgres
+      SPRING_DATASOURCE_PASSWORD: postgres
+      SPRING_DATASOURCE_JDBC_URL: jdbc:postgresql://dbserver:5432/distribuida
+      SPRING_HTTP_PORT: 8080
+      CONSUL_HOST: consul
+      CONSUL_PORT: 8500
+      QUARKUS_OTEL_EXPORTER_OTLP_ENDPOINT: http://jaeger:4317
+    expose:
+      - 8080
+    depends_on:
+      - dbserver
+      - consul
+    deploy:
+      replicas: 2
+
