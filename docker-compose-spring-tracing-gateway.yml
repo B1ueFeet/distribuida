@@ -65,7 +65,7 @@ services:
     depends_on:
       - proxy
   authors:
-    image: aaguamaninga/app-authors-spring:latest
+    image: b1uefeet/app-authors-spring:latest
     labels:
       - "traefik.enable=true"
       - "traefik.http.routers.rapp-authors.rule=PathPrefix(`/app-authors-spring`)"
@@ -87,7 +87,7 @@ services:
     deploy:
       replicas: 1
   books:
-    image: aaguamaninga/app-books-spring:latest
+    image: b1uefeet/app-books-spring:latest
     labels:
       - "traefik.enable=true"
       - "traefik.http.routers.rapp-books.rule=PathPrefix(`/app-books-spring`)"

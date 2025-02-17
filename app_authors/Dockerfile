@@ -1,6 +1,6 @@
 # docker build -t app-authors .
-# docker build -t aaguamaninga/app-authors .
-# docker push aaguamaninga/app-authors
+# docker build -t b1uefeet/app-authors .
+# docker push b1uefeet/app-authors
 
 FROM eclipse-temurin:21.0.5_11-jre-alpine
 

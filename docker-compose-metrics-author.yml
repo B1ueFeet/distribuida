@@ -47,7 +47,7 @@ services:
     depends_on:
       - consul
   authors:
-    image: aaguamaninga/app-authors:latest
+    image: b1uefeet/app-authors:latest
     labels:
       - "traefik.enable=true"
       - "traefik.http.routers.rapp-authors.rule=PathPrefix(`/app-authors1`)"
@@ -68,7 +68,7 @@ services:
     deploy:
       replicas: 2
   books:
-    image: aaguamaninga/app-books:latest
+    image: b1uefeet/app-books:latest
     labels:
       - "traefik.enable=true"
       - "traefik.http.routers.rapp-books.rule=PathPrefix(`/app-books1`)"

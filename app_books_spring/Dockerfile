@@ -1,8 +1,8 @@
 # docker build -t app-books .
 
 # docker login
-# docker build -t aaguamaninga/app-books-spring .
-# docker push aaguamaninga/app-books-spring
+# docker build -t b1uefeet/app-books-spring .
+# docker push b1uefeet/app-books-spring
 
 FROM eclipse-temurin:21.0.5_11-jre-alpine
 

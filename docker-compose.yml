@@ -48,7 +48,7 @@ services:
       - consul
 
   authors:
-    image: aaguamaninga/app-authors:latest
+    image: b1uefeet/app-authors:latest
     labels:
       - "traefik.enable=true"
       - "traefik.http.routers.rapp-authors.rule=PathPrefix(`/app-authors1`)"

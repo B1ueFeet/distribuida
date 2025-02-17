@@ -65,7 +65,7 @@ services:
     expose:
       - 3000
   authors:
-    image: aaguamaninga/app-authors-spring:latest
+    image: b1uefeet/app-authors-spring:latest
     labels:
       - "traefik.enable=true"
       - "traefik.http.routers.app-authors.rule=PathPrefix(`/app-authors`)"
@@ -86,7 +86,7 @@ services:
     deploy:
       replicas: 3
   books:
-    image: aaguamaninga/app-books-spring:latest
+    image: b1uefeet/app-books-spring:latest
     labels:
       - "traefik.enable=true"
       - "traefik.http.routers.app-books.rule=PathPrefix(`/app-books`)"
