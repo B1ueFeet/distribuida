@@ -8,6 +8,7 @@ import jakarta.transaction.Transactional;
 import jakarta.ws.rs.*;
 import jakarta.ws.rs.core.Response;
 import org.eclipse.microprofile.config.inject.ConfigProperty;
+import org.eclipse.microprofile.openapi.annotations.Operation;
 
 import java.net.InetAddress;
 import java.net.UnknownHostException;
@@ -33,6 +34,8 @@ public class AuthorRest {
 
     @GET
     @Path("/{id}")
+    @Operation(summary = "Obtener Author",
+            description = "Obtiene un author por Id.")
     public Response findById(@PathParam("id") Integer id) throws UnknownHostException {
 
         int value = counter.getAndIncrement();
@@ -58,12 +61,16 @@ public class AuthorRest {
     }
 
     @GET
+    @Operation(summary = "Obtener todos los Authors",
+            description = "Obtiene la lista de todos los authors.")
     public List<Author> findAll(){
         return repository.findAll()
                 .list();
     }
 
     @POST
+    @Operation(summary = "Crear un nuevo Author",
+            description = "Crea un nuevo author y guardarlo en la Base de Datos.")
     public Response create(Author author){
         repository.persist(author);
         return Response.status(Response.Status.CREATED).build();
@@ -71,6 +78,8 @@ public class AuthorRest {
 
     @PUT
     @Path("/{id}")
+    @Operation(summary = "Actualizar un Author",
+            description = "Actualiza un author existente por su Id.")
     public Response update(@PathParam("id") Integer id, Author author){
         var obj = repository.update(id, author);
 
@@ -83,6 +92,8 @@ public class AuthorRest {
 
     @DELETE
     @Path("/{id}")
+    @Operation(summary = "Eliminar un Author",
+            description = "Eliminar un author existente por su Id.")
     public Response delete(@PathParam("id") Integer id){
         var obj = repository.deleteById(id);
         if(!obj){
