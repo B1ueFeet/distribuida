@@ -1,46 +1,46 @@
 openapi: 3.1.0
 info:
-  title: Documento Estatico de OpenApi para Authors
-  description: Documentacion para Recursos de Authors
+  title: Documento Estatico de OpenApi para Books
+  description: Documentacion para Recursos de Books
   version: "1.0"
 
 servers:
-  - url: http://localhost:8080/
+  - url: http://localhost:7070/
     description: Visualizacion de la Documentacion en Modo Desarrollador
 
 paths:
-  /authors:
+  /books:
     get:
-      summary: Obtener todos los Authors
-      description: Obtiene la lista de todos los authors.
+      summary: Obtener todos los Books
+      description: Obtiene la lista de todos los Books.
       operationId: findAll
       responses:
         "200":
-          description: Lista de authors obtenida exitosamente
+          description: Lista de Books obtenida exitosamente
           content:
             application/json:
               schema:
                 type: array
                 items:
-                  $ref: "#/components/schemas/Author"
+                  $ref: "#/components/schemas/Book"
     post:
-      summary: Crear un nuevo Author
-      description: Crea un nuevo author y guardarlo en la Base de Datos.
+      summary: Crear un nuevo Book
+      description: Crea un nuevo Book y guardarlo en la Base de Datos.
       operationId: create
       requestBody:
         required: true
         content:
           application/json:
             schema:
-              $ref: "#/components/schemas/Author"
+              $ref: "#/components/schemas/Book"
       responses:
         "201":
-          description: Author creado exitosamente
+          description: Book creado exitosamente
 
-  /authors/{id}:
+  /books/{id}:
     get:
-      summary: Obtener Author
-      description: Obtiene un author por Id.
+      summary: Obtener Book
+      description: Obtiene un Book por Id.
       operationId: findById
       parameters:
         - name: id
@@ -50,16 +50,16 @@ paths:
             type: integer
       responses:
         "200":
-          description: Author encontrado
+          description: Book encontrado
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/Author"
+                $ref: "#/components/schemas/Book"
         "500":
           description: Error interno en el servidor
     put:
-      summary: Actualizar un Author
-      description: Actualiza un author existente por su Id.
+      summary: Actualizar un Book
+      description: Actualiza un Book existente por su Id.
       operationId: update
       parameters:
         - name: id
@@ -72,19 +72,19 @@ paths:
         content:
           application/json:
             schema:
-              $ref: "#/components/schemas/Author"
+              $ref: "#/components/schemas/Book"
       responses:
         "200":
-          description: Author actualizado exitosamente
+          description: Book actualizado exitosamente
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/Author"
+                $ref: "#/components/schemas/Book"
         "404":
-          description: Author no encontrado
+          description: Book no encontrado
     delete:
-      summary: Eliminar un Author
-      description: Eliminar un author existente por su Id.
+      summary: Eliminar un Book
+      description: Eliminar un Book existente por su Id.
       operationId: delete
       parameters:
         - name: id
@@ -94,13 +94,13 @@ paths:
             type: integer
       responses:
         "200":
-          description: Author eliminado exitosamente
+          description: Book eliminado exitosamente
         "404":
-          description: Author no encontrado
+          description: Book no encontrado
 
 components:
   schemas:
-    Author:
+    Book:
       type: object
       properties:
         id:

@@ -34,43 +34,22 @@ public class AuthorRest {
 
     @GET
     @Path("/{id}")
-    @Operation(summary = "Obtener Author",
-            description = "Obtiene un author por Id.")
-    public Response findById(@PathParam("id") Integer id) throws UnknownHostException {
-
-        int value = counter.getAndIncrement();
-        if(value%5 != 0) {
-            String msg = String.format("Intento %d ==> error", value);
-            System.out.println("*********** "+msg);
-            throw new RuntimeException(msg);
-        }
-
-        System.out.printf("%s: Server %d\n", LocalDateTime.now(), port);
-
+    public Response findById(@PathParam("id") Integer id)  {
         var obj = repository.findById(id);
-
-        String ipAddress = InetAddress.getLocalHost().getHostAddress();
-        String txt = String.format("[%s:%d]-%s", ipAddress,port, obj.getFirstName());
-
-        var ret = new Author();
-        ret.setId(obj.getId());
-        ret.setFirstName(txt);
-        ret.setLastName(obj.getLastName());
-
-        return Response.ok(ret).build();
+        if (obj == null) {
+            return Response.status(Response.Status.NOT_FOUND).build();
+        } else {
+            return Response.ok(obj).build();
+        }
     }
 
     @GET
-    @Operation(summary = "Obtener todos los Authors",
-            description = "Obtiene la lista de todos los authors.")
     public List<Author> findAll(){
         return repository.findAll()
                 .list();
     }
 
     @POST
-    @Operation(summary = "Crear un nuevo Author",
-            description = "Crea un nuevo author y guardarlo en la Base de Datos.")
     public Response create(Author author){
         repository.persist(author);
         return Response.status(Response.Status.CREATED).build();
@@ -78,8 +57,6 @@ public class AuthorRest {
 
     @PUT
     @Path("/{id}")
-    @Operation(summary = "Actualizar un Author",
-            description = "Actualiza un author existente por su Id.")
     public Response update(@PathParam("id") Integer id, Author author){
         var obj = repository.update(id, author);
 
@@ -92,8 +69,6 @@ public class AuthorRest {
 
     @DELETE
     @Path("/{id}")
-    @Operation(summary = "Eliminar un Author",
-            description = "Eliminar un author existente por su Id.")
     public Response delete(@PathParam("id") Integer id){
         var obj = repository.deleteById(id);
         if(!obj){

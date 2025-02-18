@@ -17,18 +17,18 @@ spec:
     spec:
       containers:
         - name: app-books
-          image: docker.io/jaimesalvador/app-books:latest
+          image: docker.io/b1uefeet/app-books-prueba:latest
           imagePullPolicy: IfNotPresent
           ports:
             - containerPort: 8080
               protocol: TCP
           env:
             - name: QUARKUS_DATASOURCE_JDBC_URL
-              value: jdbc:postgresql://socastillo-pgserver.postgres.database.azure.com:5432/distribuida
+              value: quarkus.datasource.jdbc.url=jdbc:postgresql://localhost:54321/distribuida
             - name: QUARKUS_DATASOURCE_USERNAME
               value: distribuida
             - name: QUARKUS_DATASOURCE_PASSWORD
-              value: Ejemplo2025
+              value: postgres
             - name: QUARKUS_HTTP_PORT
               value: "8080"
             - name: CONSUL_HOST
